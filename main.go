@@ -30,7 +30,7 @@ func indexHandler(c *routing.Context) error {
 			"\n" +
 			"Example:\n" +
 			"curl -X POST -F \"a=Foo Bar\" -F \"b=FOO BAR\" " +
-			"http://casecmp.bah.io/",
+			"http://" + string(c.Host()) + "/",
 	))
 	return nil
 }
