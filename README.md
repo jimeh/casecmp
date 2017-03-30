@@ -1,6 +1,6 @@
 # casecmp
 
-Case-insensitive string comparison, as an API. Because ¯\\_(ツ)_/¯
+Case-insensitive string comparison, as an API. Because ¯\\_(ツ)\_/¯
 
 
 ## License
