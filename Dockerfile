@@ -1,17 +1,11 @@
-FROM golang:alpine
-
+FROM golang:alpine as builder
 ADD . /go/src/github.com/jimeh/casecmp
+WORKDIR /go/src/github.com/jimeh/casecmp
+RUN CGO_ENABLED=0 go build -a -o /casecmp \
+    -ldflags "-X main.Version=$(cat VERSION)"
 
-RUN go install github.com/jimeh/casecmp
-
+FROM scratch
+COPY --from=builder /casecmp /
 EXPOSE 8080
-CMD ["/go/bin/casecmp", "--port", "8080"]
-
-
-
-# FROM scratch
-# ADD bin/casecmp_linux_amd64 /casecmp
-# EXPOSE 8080
-# VOLUME /data
-# WORKDIR /
-# CMD ["/casecmp", "--port", "8080"]
+WORKDIR /
+CMD ["/casecmp", "--port", "8080"]
