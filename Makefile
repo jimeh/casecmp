@@ -51,7 +51,7 @@ release: release-build
 	cd $(RELEASEDIR); \
 		$(foreach BIN,$(BINS),tar -cvzf $(BIN).tar.gz $(BIN) && rm $(BIN);)
 
-.PHONY: build-docker
-build-docker: clean deps
+.PHONY: docker
+docker: clean deps
 	docker build -t "${DOCKERREPO}:latest" . \
 		&& docker tag "${DOCKERREPO}:latest" "${DOCKERREPO}:${VERSION}"
