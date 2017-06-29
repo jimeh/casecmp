@@ -25,21 +25,9 @@ clean:
 run: $(BINARY)
 	$(BINARY)
 
-.PHONY: install
-install: dev-deps
-	@govendor install +local +program
-
-.PHONY: vendor-sync
-vendor-sync: dev-deps
+.PHONY: deps
+deps:
 	@govendor sync
-
-.PHONY: vendor-fetch
-vendor-fetch: dev-deps
-	@govendor fetch +external +missing
-
-.PHONY: vendor-install
-vendor-install: dev-deps
-	@govendor install +vendor
 
 .PHONY: dev-deps
 dev-deps:
@@ -50,7 +38,7 @@ update-dev-deps:
 	@$(foreach DEP,$(DEV_DEPS),go get -u $(DEP);)
 
 .PHONY: release-build
-release-build:
+release-build: deps
 	gox -output "${RELEASEDIR}/${BINNAME}_${VERSION}_{{.OS}}_{{.Arch}}" \
 		-osarch=${OSARCH} \
 		-ldflags "-X main.Version=${VERSION}"
@@ -64,7 +52,6 @@ release: release-build
 		$(foreach BIN,$(BINS),tar -cvzf $(BIN).tar.gz $(BIN) && rm $(BIN);)
 
 .PHONY: build-docker
-build-docker: clean
-	govendor sync \
-	&& docker build -t "${DOCKERREPO}:latest" . \
+build-docker: clean deps
+	docker build -t "${DOCKERREPO}:latest" . \
 		&& docker tag "${DOCKERREPO}:latest" "${DOCKERREPO}:${VERSION}"
