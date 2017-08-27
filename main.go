@@ -17,7 +17,7 @@ var defaultPort = "8080"
 
 var (
 	port = kingpin.Flag("port", "Port to listen to.").Short('p').
-		Default(defaultPort).String()
+		Default("").String()
 	bind = kingpin.Flag("bind", "Bind address.").Short('b').
 		Default("0.0.0.0").String()
 	version = kingpin.Flag("version", "Print version info.").
@@ -59,10 +59,12 @@ func startServer() {
 
 	server := fasthttp.Server{Handler: r.HandleRequest}
 
-	if *port == defaultPort {
+	if *port == "" {
 		envPort := os.Getenv("PORT")
 		if envPort != "" {
 			*port = envPort
+		} else {
+			*port = defaultPort
 		}
 	}
 
