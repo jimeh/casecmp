@@ -2,19 +2,25 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"log"
+	"net/http"
 	"os"
 	"strings"
 
-	"github.com/qiangxue/fasthttp-routing"
-	"github.com/valyala/fasthttp"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
+// Name of application.
+var Name = "casecmp"
+
 // Version gets populated with version at build-time.
 var Version string
-var defaultPort = "8080"
 
+// DefaultPort that service runs on.
+var DefaultPort = "8080"
+
+// Argument parsing setup.
 var (
 	port = kingpin.Flag("port", "Port to listen to.").Short('p').
 		Default("").String()
@@ -24,53 +30,62 @@ var (
 		Short('v').Bool()
 )
 
-func indexHandler(c *routing.Context) error {
-	c.Write([]byte(
+func indexHandler(w http.ResponseWriter, r *http.Request) {
+	resp := Name + " " + Version + "\n" +
+		"\n" +
 		"Case-insensitive string comparison, as an API. Because ¯\\_(ツ)_/¯\n" +
-			"\n" +
-			"Example:\n" +
-			"curl -X POST -F \"a=Foo Bar\" -F \"b=FOO BAR\" " +
-			"http://" + string(c.Host()) + "/",
-	))
-	return nil
+		"\n" +
+		"Example:\n" +
+		"curl -X POST -F \"a=Foo Bar\" -F \"b=FOO BAR\" " +
+		"http://" + r.Host + "/\n" +
+		"curl -X POST http://" + r.Host + "/?a=Foo%%20Bar&b=FOO%%20BAR"
+
+	io.WriteString(w, resp)
 }
 
-func casecmpHandler(c *routing.Context) error {
-	a := c.FormValue("a")
-	b := c.FormValue("b")
+func casecmpHandler(w http.ResponseWriter, r *http.Request) {
+	a := r.FormValue("a")
+	b := r.FormValue("b")
 
 	resp := "0"
 	if strings.EqualFold(string(a), string(b)) {
 		resp = "1"
 	}
+	fmt.Fprintf(w, resp)
+}
 
-	c.Write([]byte(resp))
-	return nil
+func rootHandler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/" {
+		http.NotFound(w, r)
+		return
+	}
+
+	if r.Method == "GET" {
+		indexHandler(w, r)
+	} else {
+		casecmpHandler(w, r)
+	}
 }
 
 func printVersion() {
-	fmt.Println("casecmp " + Version)
+	fmt.Println(Name + " " + Version)
 }
 
 func startServer() {
-	r := routing.New()
-	r.Get("/", indexHandler)
-	r.Post("/", casecmpHandler)
-
-	server := fasthttp.Server{Handler: r.HandleRequest}
+	http.HandleFunc("/", rootHandler)
 
 	if *port == "" {
 		envPort := os.Getenv("PORT")
 		if envPort != "" {
 			*port = envPort
 		} else {
-			*port = defaultPort
+			*port = DefaultPort
 		}
 	}
 
 	address := *bind + ":" + *port
 	fmt.Println("Listening on " + address)
-	log.Fatal(server.ListenAndServe(address))
+	log.Fatal(http.ListenAndServe(address, nil))
 }
 
 func main() {

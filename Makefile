@@ -7,7 +7,8 @@ DOCKERREPO = jimeh/casecmp
 BINDIR = $(shell dirname ${BINARY})
 SOURCES = $(shell find . -name '*.go' -o -name 'VERSION')
 VERSION = $(shell cat VERSION)
-OSARCH = "darwin/386 darwin/amd64 linux/386 linux/amd64 linux/arm"
+OSARCH = "darwin/386 darwin/amd64 linux/386 linux/amd64 linux/arm " \
+	"windows/386 windows/amd64"
 RELEASEDIR = releases
 
 $(BINARY): $(SOURCES)
