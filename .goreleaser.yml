@@ -1,0 +1,19 @@
+builds:
+  - main: main.go
+    binary: casecmp
+    goos:
+      - darwin
+      - freebsd
+      - linux
+      - windows
+    goarch:
+      - amd64
+      - 386
+      - arm
+git:
+  short_hash: true
+archive:
+  format: tar.gz
+  files:
+    - README.md
+    - LICENSE
