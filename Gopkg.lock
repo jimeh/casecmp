@@ -19,8 +19,8 @@
 [[projects]]
   name = "gopkg.in/alecthomas/kingpin.v2"
   packages = ["."]
-  revision = "1087e65c9441605df944fb12c33f0fe7072d18ca"
-  version = "v2.2.5"
+  revision = "947dcec5ba9c011838740e680966fd7087a71d0d"
+  version = "v2.2.6"
 
 [solve-meta]
   analyzer-name = "dep"
