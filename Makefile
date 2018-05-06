@@ -34,8 +34,8 @@ clean:
 	if [ -f ${BINARY} ]; then rm ${BINARY}; fi
 	if [ -d ${BIN_DIR} ]; then rmdir ${BIN_DIR}; fi
 
-.PHONY: docker-build
-docker-build: clean
+.PHONY: docker
+docker:
 	docker build -t "$(WHOAMI)/$(NAME)" .
 
 .PHONY: release
