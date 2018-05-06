@@ -1,9 +1,8 @@
-DEV_DEPS = github.com/kardianos/govendor
-
 NAME = casecmp
 BINARY = bin/${NAME}
 SOURCES = $(shell find . -name '*.go' -o -name 'VERSION' -o -name 'README.md')
-VERSION = $(shell cat VERSION)
+VERSION ?= $(shell cat VERSION)
+WHOAMI ?= $(shell whoami)
 RELEASE_DIR = releases
 RELEASE_TARGETS = \
 	$(RELEASE_DIR)/$(NAME)-$(VERSION)_darwin_386.tar.gz \
@@ -25,27 +24,19 @@ $(BINARY): $(SOURCES)
 .PHONY: build
 build: $(BINARY)
 
-.PHONY: clean
-clean:
-	$(eval BIN_DIR := $(shell dirname ${BINARY}))
-	if [ -f ${BINARY} ]; then rm ${BINARY}; fi; \
-	if [ -d ${BIN_DIR} ]; then rmdir ${BIN_DIR}; fi
-
 .PHONY: run
 run: $(BINARY)
 	$(BINARY)
 
-.PHONY: deps
-deps:
-	@govendor sync
+.PHONY: clean
+clean:
+	$(eval BIN_DIR := $(shell dirname ${BINARY}))
+	if [ -f ${BINARY} ]; then rm ${BINARY}; fi
+	if [ -d ${BIN_DIR} ]; then rmdir ${BIN_DIR}; fi
 
-.PHONY: dev-deps
-dev-deps:
-	@$(foreach DEP,$(DEV_DEPS),go get $(DEP);)
-
-.PHONY: update-dev-deps
-update-dev-deps:
-	@$(foreach DEP,$(DEV_DEPS),go get -u $(DEP);)
+.PHONY: docker-build
+docker-build: clean
+	docker build -t "$(WHOAMI)/$(NAME)" .
 
 .PHONY: release
 release: $(RELEASE_TARGETS)
@@ -71,9 +62,3 @@ $(RELEASE_DIR)/$(NAME)-$(VERSION)_windows_%.zip: $(SOURCES)
 		&& zip -r "$@" "$(TARGET)" \
 		&& cd "$(TARGET)" && rm "$(NAME).exe" $(RELEASE_ASSETS) && cd .. \
 		&& rmdir "$(TARGET)"
-
-.PHONY: docker
-docker: clean deps
-	$(eval REPO := $(shell whoami)/$(NAME))
-	docker build -t "$(REPO):latest" . \
-		&& docker tag "$(REPO):latest" "$(REPO):$(VERSION)"
