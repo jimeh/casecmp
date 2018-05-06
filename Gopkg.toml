@@ -1,0 +1,8 @@
+[[constraint]]
+  name = "gopkg.in/alecthomas/kingpin.v2"
+  version = "2.2.5"
+
+[prune]
+  non-go = true
+  go-tests = true
+  unused-packages = true
