@@ -1,4 +1,4 @@
-FROM golang:1.9-alpine as builder
+FROM golang:1.10-alpine as builder
 ADD . /go/src/github.com/jimeh/casecmp
 WORKDIR /go/src/github.com/jimeh/casecmp
 RUN CGO_ENABLED=0 go build -a -o /casecmp \
