@@ -35,7 +35,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		"\n" +
 		"Case-insensitive string comparison, as an API. Because ¯\\_(ツ)_/¯\n" +
 		"\n" +
-		"Example:\n" +
+		"Example usage:\n" +
 		"curl -X POST -F \"a=Foo Bar\" -F \"b=FOO BAR\" " +
 		"http://" + r.Host + "/\n" +
 		"curl -X POST http://" + r.Host + "/?a=Foo%%20Bar&b=FOO%%20BAR"
