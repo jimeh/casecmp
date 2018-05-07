@@ -1,10 +1,6 @@
 NAME = casecmp
 BINARY = bin/${NAME}
-
 VERSION ?= $(shell cat VERSION)
-COMMIT = $(shell git show --format="%h" --no-patch)
-DATE = $(shell date +%Y-%m-%dT%T%z)
-
 SOURCES = $(shell find . \
 	-name '*.go' \
 	-o -name 'LICENSE' \
@@ -29,10 +25,11 @@ RELEASE_ASSETS = \
 	LICENSE
 
 $(BINARY): $(SOURCES)
-	go build -o ${BINARY} -ldflags \ "\
+	CGO_ENABLED=0 go build -a -o ${BINARY} -ldflags \ "\
+		-s -w \
 		-X main.version=${VERSION} \
-		-X main.commit=${COMMIT} \
-		-X main.date=${DATE}"
+		-X main.commit=$(shell git show --format="%h" --no-patch) \
+		-X main.date=$(shell date +%Y-%m-%dT%T%z)"
 
 .PHONY: build
 build: $(BINARY)
