@@ -8,7 +8,10 @@ ADD . /go/src/github.com/jimeh/casecmp
 RUN set -e \
     && dep ensure \
     && CGO_ENABLED=0 go build -a -o /casecmp \
-       -ldflags "-X main.Version=$(cat VERSION)"
+       -ldflags "-s -w \
+          -X main.version=$(cat VERSION) \
+          -X main.commit=$(git show --format='%h' --no-patch)\
+          -X main.date=$(date +%Y-%m-%dT%T%z)"
 
 
 FROM scratch
@@ -16,4 +19,4 @@ COPY --from=builder /casecmp /
 ENV PORT 8080
 EXPOSE 8080
 WORKDIR /
-CMD ["/casecmp"]
+ENTRYPOINT ["/casecmp"]
