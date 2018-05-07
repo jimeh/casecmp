@@ -44,12 +44,22 @@ jobs:
           command: goreleaser
 workflows:
   version: 2
+  build:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only: /.*/
+            tags:
+              ignore: /^[0-9]+(\.[0-9]+)*/
   build-and-release:
     jobs:
       - build:
           filters:
+            branches:
+              ignore: /.*/
             tags:
-              only: /.*/
+              only: /^[0-9]+(\.[0-9]+)*/
       - release:
           requires:
             - build
