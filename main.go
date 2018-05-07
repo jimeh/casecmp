@@ -1,8 +1,8 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"os"
@@ -11,47 +11,57 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-// Name of application.
-var Name = "casecmp"
-
-// Version gets populated with version at build-time.
-var Version string
-
-// DefaultPort that service runs on.
-var DefaultPort = "8080"
+var (
+	name        = "casecmp"
+	version     = "dev"
+	commit      = "unknown"
+	date        = "unknown"
+	defaultPort = "8080"
+)
 
 // Argument parsing setup.
 var (
-	port = kingpin.Flag("port", "Port to listen to.").Short('p').
-		Default("").String()
-	bind = kingpin.Flag("bind", "Bind address.").Short('b').
-		Default("0.0.0.0").String()
-	version = kingpin.Flag("version", "Print version info.").
-		Short('v').Bool()
+	portFlag = kingpin.Flag("port", "Port to listen to.").Short('p').
+			Default("").String()
+	bindFlag = kingpin.Flag("bind", "Bind address.").Short('b').
+			Default("0.0.0.0").String()
+	versionFlag = kingpin.Flag("version", "Print version info.").
+			Short('v').Bool()
 )
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-	resp := Name + " " + Version + "\n" +
-		"\n" +
-		"Case-insensitive string comparison, as an API. Because ¯\\_(ツ)_/¯\n" +
-		"\n" +
-		"Example usage:\n" +
-		"curl -X POST -F \"a=Foo Bar\" -F \"b=FOO BAR\" " +
-		"http://" + r.Host + "/\n" +
-		"curl -X POST http://" + r.Host + "/?a=Foo%%20Bar&b=FOO%%20BAR"
+	scheme := "http"
+	if r.TLS != nil {
+		scheme = "https"
+	}
 
-	io.WriteString(w, resp)
+	_, err := fmt.Fprintf(w, `%s %s
+
+Case-insensitive string comparison, as an API. Because ¯\_(ツ)_/¯
+
+Example usage:
+curl -X POST -F "a=Foo Bar" -F "b=FOO BAR" %s://%s/
+curl -X POST "%s://%s/?a=Foo+Bar&b=FOO+BAR"`,
+		name, version, scheme, r.Host, scheme, r.Host)
+
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func casecmpHandler(w http.ResponseWriter, r *http.Request) {
 	a := r.FormValue("a")
 	b := r.FormValue("b")
-
 	resp := "0"
+
 	if strings.EqualFold(string(a), string(b)) {
 		resp = "1"
 	}
-	fmt.Fprintf(w, resp)
+	_, err := fmt.Fprintf(w, resp)
+
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {
@@ -68,22 +78,29 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func printVersion() {
-	fmt.Println(Name + " " + Version)
+	var buffer bytes.Buffer
+	buffer.WriteString(fmt.Sprintf("%s %s", name, version))
+
+	if commit != "unknown" {
+		buffer.WriteString(fmt.Sprintf(" (%s)", commit))
+	}
+
+	fmt.Println(buffer.String())
 }
 
 func startServer() {
 	http.HandleFunc("/", rootHandler)
 
-	if *port == "" {
+	if *portFlag == "" {
 		envPort := os.Getenv("PORT")
 		if envPort != "" {
-			*port = envPort
+			*portFlag = envPort
 		} else {
-			*port = DefaultPort
+			*portFlag = defaultPort
 		}
 	}
 
-	address := *bind + ":" + *port
+	address := *bindFlag + ":" + *portFlag
 	fmt.Println("Listening on " + address)
 	log.Fatal(http.ListenAndServe(address, nil))
 }
@@ -91,7 +108,7 @@ func startServer() {
 func main() {
 	kingpin.Parse()
 
-	if *version {
+	if *versionFlag {
 		printVersion()
 	} else {
 		startServer()

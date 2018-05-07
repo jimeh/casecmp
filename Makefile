@@ -1,8 +1,17 @@
 NAME = casecmp
 BINARY = bin/${NAME}
-SOURCES = $(shell find . -name '*.go' -o -name 'VERSION' -o -name 'README.md')
+
 VERSION ?= $(shell cat VERSION)
-WHOAMI ?= $(shell whoami)
+COMMIT = $(shell git show --format="%h" --no-patch)
+DATE = $(shell date +%Y-%m-%dT%T%z)
+
+SOURCES = $(shell find . \
+	-name '*.go' \
+	-o -name 'LICENSE' \
+	-o -name 'Makefile' \
+	-o -name 'README.md' \
+	-o -name 'VERSION')
+
 RELEASE_DIR = releases
 RELEASE_TARGETS = \
 	$(RELEASE_DIR)/$(NAME)-$(VERSION)_darwin_386.tar.gz \
@@ -16,10 +25,14 @@ RELEASE_TARGETS = \
 	$(RELEASE_DIR)/$(NAME)-$(VERSION)_windows_386.zip \
 	$(RELEASE_DIR)/$(NAME)-$(VERSION)_windows_amd64.zip
 RELEASE_ASSETS = \
-	README.md
+	README.md \
+	LICENSE
 
 $(BINARY): $(SOURCES)
-	go build -o ${BINARY} -ldflags "-X main.Version=${VERSION}"
+	go build -o ${BINARY} -ldflags \ "\
+		-X main.version=${VERSION} \
+		-X main.commit=${COMMIT} \
+		-X main.date=${DATE}"
 
 .PHONY: build
 build: $(BINARY)
@@ -36,7 +49,7 @@ clean:
 
 .PHONY: docker
 docker:
-	docker build -t "$(WHOAMI)/$(NAME)" .
+	docker build -t "$(shell whoami)/$(NAME)" .
 
 .PHONY: release
 release: $(RELEASE_TARGETS)
