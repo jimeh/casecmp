@@ -101,7 +101,7 @@ func startServer() {
 	}
 
 	address := *bindFlag + ":" + *portFlag
-	fmt.Println("Listening on " + address)
+	fmt.Printf("Listening on %s\n", address)
 	log.Fatal(http.ListenAndServe(address, nil))
 }
 
