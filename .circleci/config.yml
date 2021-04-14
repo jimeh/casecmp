@@ -27,16 +27,8 @@ jobs:
     working_directory: /go/src/github.com/jimeh/casecmp
     steps:
       - checkout
-      - run:
-          name: Install tools
-          command: |
-            go get github.com/goreleaser/goreleaser
-      - run:
-          name: Install dependencies
-          command: go mod download
-      - run:
-          name: Run goreleaser
-          command: goreleaser
+      - run: curl -sL https://git.io/goreleaser | bash
+
 workflows:
   version: 2
   build:

@@ -1,10 +1,14 @@
-project_name: casecmp
+before:
+  hooks:
+    - go mod tidy
 builds:
-  - main: main.go
-    binary: casecmp
-    flags: -a
-    env:
+  - env:
       - CGO_ENABLED=0
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    flags:
+      - -trimpath
+    ldflags:
+      - "-s -w -X main.version={{ .Version }} -X main.commit={{ .Commit }}"
     goos:
       - darwin
       - freebsd
@@ -17,18 +21,29 @@ builds:
     goarm:
       - 6
       - 7
-archive:
-  name_template: '{{ .ProjectName }}-{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm
-    }}v{{ .Arm }}{{ end }}'
-  format: tar.gz
-  wrap_in_directory: true
-  format_overrides:
-    - goos: windows
-      format: zip
-before:
-  hooks:
-  - make clean
-git:
-  short_hash: true
+
+archives:
+  - format: tar.gz
+    name_template: |-
+      {{ .ProjectName }}-{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}
+    wrap_in_directory: true
+    format_overrides:
+      - goos: windows
+        format: zip
+    replacements:
+      darwin: Darwin
+      linux: Linux
+      windows: Windows
+      386: i386
+      amd64: x86_64
+
+checksum:
+  name_template: "checksums.txt"
 snapshot:
-  name_template: snapshot-{{.Commit}}
+  name_template: "{{ .Tag }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
