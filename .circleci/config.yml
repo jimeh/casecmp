@@ -2,17 +2,13 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/golang:1.10
+      - image: circleci/golang:1.16
     working_directory: /go/src/github.com/jimeh/casecmp
     steps:
       - checkout
       - run:
-          name: Install tools
-          command: |
-            curl -L https://github.com/golang/dep/raw/master/install.sh | sh
-      - run:
           name: Install dependencies
-          command: dep ensure
+          command: go mod download
       - run:
           name: Build binary
           command: make
@@ -27,18 +23,17 @@ jobs:
               http://localhost:8080/
   release:
     docker:
-      - image: circleci/golang:1.10
+      - image: circleci/golang:1.16
     working_directory: /go/src/github.com/jimeh/casecmp
     steps:
       - checkout
       - run:
           name: Install tools
           command: |
-            curl -L https://github.com/golang/dep/raw/master/install.sh | sh
             go get github.com/goreleaser/goreleaser
       - run:
           name: Install dependencies
-          command: dep ensure
+          command: go mod download
       - run:
           name: Run goreleaser
           command: goreleaser
@@ -51,7 +46,7 @@ workflows:
             branches:
               only: /.*/
             tags:
-              ignore: /^[0-9]+(\.[0-9]+)*/
+              ignore: /^v[0-9]+(\.[0-9]+)*/
   build-and-release:
     jobs:
       - build:
@@ -59,7 +54,7 @@ workflows:
             branches:
               ignore: /.*/
             tags:
-              only: /^[0-9]+(\.[0-9]+)*/
+              only: /^v[0-9]+(\.[0-9]+)*/
       - release:
           requires:
             - build
@@ -67,4 +62,4 @@ workflows:
             branches:
               ignore: /.*/
             tags:
-              only: /^[0-9]+(\.[0-9]+)*/
+              only: /^v[0-9]+(\.[0-9]+)*/

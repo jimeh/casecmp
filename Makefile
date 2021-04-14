@@ -1,10 +1,7 @@
 NAME = casecmp
 BINARY = bin/${NAME}
 VERSION ?= $(shell cat VERSION)
-SOURCES = $(shell find . \
-	-name '*.go' \
-	-o -name 'Makefile' \
-	-o -name 'VERSION')
+SOURCES = $(shell find . -name '*.go' -o -name 'Makefile')
 
 $(BINARY): $(SOURCES)
 	CGO_ENABLED=0 go build -a -o ${BINARY} -ldflags \ "\
