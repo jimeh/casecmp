@@ -25,13 +25,16 @@ var (
 			Default("").String()
 	bindFlag = kingpin.Flag("bind", "Bind address.").Short('b').
 			Default("0.0.0.0").String()
+	forceHTTPSFlag = kingpin.Flag(
+		"force-https", "Use https:// in example curl commands",
+	).Bool()
 	versionFlag = kingpin.Flag("version", "Print version info.").
 			Short('v').Bool()
 )
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	scheme := "http"
-	if r.TLS != nil {
+	if r.TLS != nil || *forceHTTPSFlag {
 		scheme = "https"
 	}
 
@@ -43,7 +46,6 @@ Example usage:
 curl -X POST -F "a=Foo Bar" -F "b=FOO BAR" %s://%s/
 curl -X POST "%s://%s/?a=Foo+Bar&b=FOO+BAR"`,
 		name, version, scheme, r.Host, scheme, r.Host)
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -58,7 +60,6 @@ func casecmpHandler(w http.ResponseWriter, r *http.Request) {
 		resp = "1"
 	}
 	_, err := fmt.Fprintf(w, resp)
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -98,6 +99,10 @@ func startServer() {
 		} else {
 			*portFlag = defaultPort
 		}
+	}
+
+	if !*forceHTTPSFlag && os.Getenv("FORCE_HTTPS") != "" {
+		*forceHTTPSFlag = true
 	}
 
 	address := *bindFlag + ":" + *portFlag
