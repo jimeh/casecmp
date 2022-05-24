@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.4.0](https://github.com/jimeh/casecmp/compare/v1.3.0...v1.4.0) (2022-05-24)
+
+
+### Features
+
+* compare on GET requests with non-empty query string ([cdaaec6](https://github.com/jimeh/casecmp/commit/cdaaec6b0b763141476562047578844e6105ec7a))
+
 ## [1.3.0](https://github.com/jimeh/casecmp/compare/v1.2.3...v1.3.0) (2022-02-13)
 
 
