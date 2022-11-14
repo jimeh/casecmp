@@ -1,0 +1,20 @@
+{
+  "bootstrap-sha": "b7f4d11fc99f9ffa85376c5757d8dd8c6341c38a",
+  "last-release-sha": "b7f4d11fc99f9ffa85376c5757d8dd8c6341c38a",
+  "release-type": "go",
+  "bump-minor-pre-major": true,
+  "bump-patch-for-minor-pre-major": true,
+  "packages": {
+    ".": {
+      "changelog-path": "CHANGELOG.md",
+      "bump-minor-pre-major": false,
+      "bump-patch-for-minor-pre-major": false,
+      "draft": false,
+      "prerelease": false,
+      "extra-files": [
+        "VERSION"
+      ]
+    }
+  },
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json"
+}
