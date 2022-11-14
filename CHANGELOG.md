@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.1.0](https://github.com/jimeh/casecmp/compare/v2.0.0...v2.1.0) (2022-11-14)
+
+
+### Features
+
+* **helm-chart:** add casecmp.httpsExamples value ([406f21f](https://github.com/jimeh/casecmp/commit/406f21f72115884503bfe3e928d993a536eb45b2))
+* **json:** add support for JSON request and response types ([0658bad](https://github.com/jimeh/casecmp/commit/0658bad90257aa55bfadea6b6167337b21df1a13))
+
 ## [2.0.0](https://github.com/jimeh/casecmp/compare/v1.5.0...v2.0.0) (2022-11-14)
 
 
