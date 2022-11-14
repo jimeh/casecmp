@@ -118,6 +118,13 @@ func startServer() error {
 		}
 	}
 
+	if *bindFlag == defaultBind {
+		envBind := os.Getenv("BIND")
+		if envBind != "" {
+			*bindFlag = envBind
+		}
+	}
+
 	if !*forceHTTPSFlag && os.Getenv("FORCE_HTTPS") != "" {
 		*forceHTTPSFlag = true
 	}
