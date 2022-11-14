@@ -2,35 +2,35 @@ package main
 
 import (
 	"bytes"
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"time"
-
-	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 var (
+	version = "dev"
+	commit  = "unknown"
+)
+
+const (
 	name        = "casecmp"
-	version     = "dev"
-	commit      = "unknown"
-	date        = "unknown"
-	defaultPort = "8080"
+	defaultPort = 8080
+	defaultBind = "0.0.0.0"
 )
 
 // Argument parsing setup.
 var (
-	portFlag = kingpin.Flag("port", "Port to listen to.").Short('p').
-			Default("").String()
-	bindFlag = kingpin.Flag("bind", "Bind address.").Short('b').
-			Default("0.0.0.0").String()
-	forceHTTPSFlag = kingpin.Flag(
-		"force-https", "Use https:// in example curl commands",
-	).Bool()
-	versionFlag = kingpin.Flag("version", "Print version info.").
-			Short('v').Bool()
+	portFlag       = flag.Int("p", defaultPort, "Port to listen on")
+	bindFlag       = flag.String("b", defaultBind, "Bind address")
+	forceHTTPSFlag = flag.Bool(
+		"f", false, "Use https:// in example curl commands",
+	)
+	versionFlag = flag.Bool("v", false, "Print version info")
 )
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
@@ -105,13 +105,23 @@ func printVersion() {
 	fmt.Println(buffer.String())
 }
 
-func startServer() {
-	if *portFlag == "" {
+func startServer() error {
+	if *portFlag == defaultPort {
 		envPort := os.Getenv("PORT")
 		if envPort != "" {
-			*portFlag = envPort
-		} else {
-			*portFlag = defaultPort
+			v, err := strconv.Atoi(envPort)
+			if err != nil {
+				return err
+			}
+
+			*portFlag = v
+		}
+	}
+
+	if *bindFlag == defaultBind {
+		envBind := os.Getenv("BIND")
+		if envBind != "" {
+			*bindFlag = envBind
 		}
 	}
 
@@ -119,8 +129,9 @@ func startServer() {
 		*forceHTTPSFlag = true
 	}
 
-	address := *bindFlag + ":" + *portFlag
+	address := fmt.Sprintf("%s:%d", *bindFlag, *portFlag)
 	fmt.Printf("Listening on %s\n", address)
+
 	srv := &http.Server{
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 5 * time.Second,
@@ -129,15 +140,19 @@ func startServer() {
 		Addr:         address,
 	}
 
-	log.Fatal(srv.ListenAndServe())
+	return srv.ListenAndServe()
 }
 
 func main() {
-	kingpin.Parse()
+	flag.Parse()
 
 	if *versionFlag {
 		printVersion()
-	} else {
-		startServer()
+		return
+	}
+
+	err := startServer()
+	if err != nil {
+		log.Fatal(err)
 	}
 }

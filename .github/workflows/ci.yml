@@ -17,7 +17,7 @@ jobs:
         run: make
       - name: Run and make request
         run: |
-          ./bin/casecmp --port=8080 &
+          ./bin/casecmp -p 8080 &
           curl --silent --retry 10 --retry-delay 1 --retry-connrefused \
               http://localhost:8080/
 
