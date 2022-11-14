@@ -2,13 +2,16 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
+	"text/template"
 	"time"
 )
 
@@ -33,21 +36,36 @@ var (
 	versionFlag = flag.Bool("v", false, "Print version info")
 )
 
+type IndexData struct {
+	Name    string
+	Version string
+	Scheme  string
+	Host    string
+}
+
+var indexTpl = template.Must(template.New("index").Parse(`{{.Name}} {{.Version}}
+
+Case-insensitive string comparison, as an API. Because ¯\_(ツ)_/¯
+
+Example usage:
+curl -X POST -F "a=Foo Bar" -F "b=FOO BAR" {{.Scheme}}://{{.Host}}/
+curl -X GET "{{.Scheme}}://{{.Host}}/?a=Foo+Bar&b=FOO+BAR"
+curl -X GET -H "Accept: application/json" "{{.Scheme}}://{{.Host}}/?a=Foo+Bar&b=FOO+BAR"
+curl -X POST -H "Content-Type: application/json" -d '{"a":"Foo Bar","b":"FOO BAR"}' {{.Scheme}}://{{.Host}}/
+`))
+
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	scheme := "http"
 	if r.TLS != nil || *forceHTTPSFlag {
 		scheme = "https"
 	}
 
-	_, err := fmt.Fprintf(w, `%s %s
-
-Case-insensitive string comparison, as an API. Because ¯\_(ツ)_/¯
-
-Example usage:
-curl -X POST -F "a=Foo Bar" -F "b=FOO BAR" %s://%s/
-curl -X GET "%s://%s/?a=Foo+Bar&b=FOO+BAR"
-`,
-		name, version, scheme, r.Host, scheme, r.Host)
+	err := indexTpl.Execute(w, &IndexData{
+		Name:    name,
+		Version: version,
+		Scheme:  scheme,
+		Host:    r.Host,
+	})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -65,25 +83,59 @@ https://github.com/jimeh/casecmp
 	}
 }
 
-func casecmpHandler(w http.ResponseWriter, r *http.Request) {
-	a := r.FormValue("a")
-	b := r.FormValue("b")
-	resp := "0"
+type JSONData struct {
+	A string `json:"a"`
+	B string `json:"b"`
+}
 
+func casecmpHandler(w http.ResponseWriter, r *http.Request) error {
+	var a, b string
+
+	contentType := r.Header.Get("Content-Type")
+	if strings.Contains(contentType, "application/json") {
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			return err
+		}
+
+		d := JSONData{}
+		err = json.Unmarshal(body, &d)
+		if err != nil {
+			return err
+		}
+
+		a = d.A
+		b = d.B
+	} else {
+		a = r.FormValue("a")
+		b = r.FormValue("b")
+	}
+
+	resp := "0"
 	if strings.EqualFold(string(a), string(b)) {
 		resp = "1"
 	}
-	_, err := fmt.Fprint(w, resp)
-	if err != nil {
-		log.Fatal(err)
+
+	accept := r.Header.Get("Accept")
+	if strings.Contains(accept, "application/json") {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		_, err := fmt.Fprintf(w, `{"result":%s}`, resp)
+		return err
 	}
+
+	_, err := fmt.Fprint(w, resp)
+	return err
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path {
 	case "/":
 		if r.Method != "GET" || r.URL.RawQuery != "" {
-			casecmpHandler(w, r)
+			err := casecmpHandler(w, r)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				_, _ = fmt.Fprint(w, err.Error())
+			}
 			return
 		}
 		indexHandler(w, r)
