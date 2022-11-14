@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/jimeh/casecmp/compare/v1.4.0...v1.5.0) (2022-11-14)
+
+
+### Features
+
+* **deps:** upgrade to Go 1.19 ([75ddcce](https://github.com/jimeh/casecmp/commit/75ddccedf330497c0e04cd4b7f0679e647b8e190))
+
 ## [1.4.0](https://github.com/jimeh/casecmp/compare/v1.3.0...v1.4.0) (2022-05-24)
 
 
