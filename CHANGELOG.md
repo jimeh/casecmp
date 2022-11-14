@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.0.0](https://github.com/jimeh/casecmp/compare/v1.5.0...v2.0.0) (2022-11-14)
+
+
+### ⚠ BREAKING CHANGES
+
+* Long versions of command line flags are no longer supported.
+
+### Features
+
+* **chart:** add kubernetes helm chart ([4e36d51](https://github.com/jimeh/casecmp/commit/4e36d51dc1c081fd50b1397eabb736ad3fe21541))
+* **env:** support BIND environment variable ([623d2c2](https://github.com/jimeh/casecmp/commit/623d2c21b0a25d3b54b6cf3e18fc147a2faa8cd6))
+* remove external dependencies ([9a904fe](https://github.com/jimeh/casecmp/commit/9a904fee99e203d7ddb2a84e2d056d3ed8ec197a))
+
 ## [1.5.0](https://github.com/jimeh/casecmp/compare/v1.4.0...v1.5.0) (2022-11-14)
 
 
