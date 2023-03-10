@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.2.0](https://github.com/jimeh/casecmp/compare/v2.1.0...v2.2.0) (2023-03-10)
+
+
+### Features
+
+* **license:** change license to CC0 1.0 Universal ([7faab18](https://github.com/jimeh/casecmp/commit/7faab1863b48e31e46b763ef7dca0eca1825f6f8))
+
 ## [2.1.0](https://github.com/jimeh/casecmp/compare/v2.0.0...v2.1.0) (2022-11-14)
 
 
