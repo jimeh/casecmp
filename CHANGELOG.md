@@ -1,12 +1,5 @@
 # Changelog
 
-## [2.3.0](https://github.com/jimeh/casecmp/compare/v2.2.0...v2.3.0) (2023-04-26)
-
-
-### Features
-
-* **version:** add Go version to version output ([5500933](https://github.com/jimeh/casecmp/commit/55009336891b6c281542cf85498abb04816879d3))
-
 ## [2.2.0](https://github.com/jimeh/casecmp/compare/v2.1.0...v2.2.0) (2023-03-10)
 
 

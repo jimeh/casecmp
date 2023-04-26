@@ -82,7 +82,7 @@ jobs:
           args: release --rm-dist
         env:
           REGISTRY: ghcr.io
-          IMAGE: ${{ github.repository }}
+          IMAGE_NAME: ${{ github.repository }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Package chart
         run: helm package ./chart -d .cr-release-packages
