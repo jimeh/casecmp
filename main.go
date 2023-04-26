@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"runtime"
 	"strconv"
 	"strings"
 	"text/template"
@@ -153,6 +154,8 @@ func printVersion() {
 	if commit != "unknown" {
 		buffer.WriteString(fmt.Sprintf(" (%s)", commit))
 	}
+
+	buffer.WriteString(fmt.Sprintf(", built with %s", runtime.Version()))
 
 	fmt.Println(buffer.String())
 }
