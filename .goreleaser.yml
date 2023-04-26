@@ -47,8 +47,8 @@ changelog:
 
 dockers:
   - image_templates:
-      - "ghcr.io/jimeh/casecmp:{{ .Version }}-amd64"
-      - "ghcr.io/jimeh/casecmp:latest-amd64"
+      - "{{ .Env.REGISTRY }}/{{ .Env.IMAGE_NAME }}:{{ .Version }}-amd64"
+      - "{{ .Env.REGISTRY }}/{{ .Env.IMAGE_NAME }}:latest-amd64"
     dockerfile: Dockerfile
     use: buildx
     goos: linux
@@ -56,8 +56,8 @@ dockers:
     build_flag_templates:
       - "--platform=linux/amd64"
   - image_templates:
-      - "ghcr.io/jimeh/casecmp:{{ .Version }}-386"
-      - "ghcr.io/jimeh/casecmp:latest-386"
+      - "{{ .Env.REGISTRY }}/{{ .Env.IMAGE_NAME }}:{{ .Version }}-386"
+      - "{{ .Env.REGISTRY }}/{{ .Env.IMAGE_NAME }}:latest-386"
     dockerfile: Dockerfile
     use: buildx
     goos: linux
@@ -65,8 +65,8 @@ dockers:
     build_flag_templates:
       - "--platform=linux/386"
   - image_templates:
-      - "ghcr.io/jimeh/casecmp:{{ .Version }}-arm64"
-      - "ghcr.io/jimeh/casecmp:latest-arm64"
+      - "{{ .Env.REGISTRY }}/{{ .Env.IMAGE_NAME }}:{{ .Version }}-arm64"
+      - "{{ .Env.REGISTRY }}/{{ .Env.IMAGE_NAME }}:latest-arm64"
     use: buildx
     goos: linux
     goarch: arm64
@@ -74,8 +74,8 @@ dockers:
     build_flag_templates:
       - "--platform=linux/arm64"
   - image_templates:
-      - "ghcr.io/jimeh/casecmp:{{ .Version }}-armv6"
-      - "ghcr.io/jimeh/casecmp:latest-armv6"
+      - "{{ .Env.REGISTRY }}/{{ .Env.IMAGE_NAME }}:{{ .Version }}-armv6"
+      - "{{ .Env.REGISTRY }}/{{ .Env.IMAGE_NAME }}:latest-armv6"
     use: buildx
     goos: linux
     goarch: arm
@@ -84,8 +84,8 @@ dockers:
     build_flag_templates:
       - "--platform=linux/arm/v6"
   - image_templates:
-      - "ghcr.io/jimeh/casecmp:{{ .Version }}-armv7"
-      - "ghcr.io/jimeh/casecmp:latest-armv7"
+      - "{{ .Env.REGISTRY }}/{{ .Env.IMAGE_NAME }}:{{ .Version }}-armv7"
+      - "{{ .Env.REGISTRY }}/{{ .Env.IMAGE_NAME }}:latest-armv7"
     use: buildx
     goos: linux
     goarch: arm
@@ -95,17 +95,17 @@ dockers:
       - "--platform=linux/arm/v7"
 
 docker_manifests:
-  - name_template: ghcr.io/jimeh/casecmp:{{ .Version }}
+  - name_template: "{{ .Env.REGISTRY }}/{{ .Env.IMAGE_NAME }}:{{ .Version }}"
     image_templates:
-      - ghcr.io/jimeh/casecmp:{{ .Version }}-amd64
-      - ghcr.io/jimeh/casecmp:{{ .Version }}-386
-      - ghcr.io/jimeh/casecmp:{{ .Version }}-arm64
-      - ghcr.io/jimeh/casecmp:{{ .Version }}-armv6
-      - ghcr.io/jimeh/casecmp:{{ .Version }}-armv7
-  - name_template: ghcr.io/jimeh/casecmp:latest
+      - "{{ .Env.REGISTRY }}/{{ .Env.IMAGE_NAME }}:{{ .Version }}-amd64"
+      - "{{ .Env.REGISTRY }}/{{ .Env.IMAGE_NAME }}:{{ .Version }}-386"
+      - "{{ .Env.REGISTRY }}/{{ .Env.IMAGE_NAME }}:{{ .Version }}-arm64"
+      - "{{ .Env.REGISTRY }}/{{ .Env.IMAGE_NAME }}:{{ .Version }}-armv6"
+      - "{{ .Env.REGISTRY }}/{{ .Env.IMAGE_NAME }}:{{ .Version }}-armv7"
+  - name_template: "{{ .Env.REGISTRY }}/{{ .Env.IMAGE_NAME }}:latest"
     image_templates:
-      - ghcr.io/jimeh/casecmp:latest-amd64
-      - ghcr.io/jimeh/casecmp:latest-386
-      - ghcr.io/jimeh/casecmp:latest-arm64
-      - ghcr.io/jimeh/casecmp:latest-armv6
-      - ghcr.io/jimeh/casecmp:latest-armv7
+      - "{{ .Env.REGISTRY }}/{{ .Env.IMAGE_NAME }}:latest-amd64"
+      - "{{ .Env.REGISTRY }}/{{ .Env.IMAGE_NAME }}:latest-386"
+      - "{{ .Env.REGISTRY }}/{{ .Env.IMAGE_NAME }}:latest-arm64"
+      - "{{ .Env.REGISTRY }}/{{ .Env.IMAGE_NAME }}:latest-armv6"
+      - "{{ .Env.REGISTRY }}/{{ .Env.IMAGE_NAME }}:latest-armv7"
