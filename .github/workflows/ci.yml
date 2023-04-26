@@ -57,6 +57,12 @@ jobs:
         with:
           fetch-depth: 0
       - run: git fetch --force --tags
+      - name: Configure Git
+        run: |
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+      - name: Install Helm
+        uses: azure/setup-helm@v3
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - uses: docker/setup-buildx-action@v2
@@ -78,3 +84,12 @@ jobs:
           REGISTRY: ghcr.io
           IMAGE: ${{ github.repository }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Package chart
+        run: helm package ./chart -d .cr-release-packages
+      - name: Run chart-releaser
+        uses: helm/chart-releaser-action@v1
+        with:
+          config: .cr.yaml
+          skip_packaging: true
+        env:
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
