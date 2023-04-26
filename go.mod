@@ -1,3 +1,3 @@
 module github.com/jimeh/casecmp
 
-go 1.19
+go 1.20
