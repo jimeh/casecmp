@@ -12,7 +12,7 @@
         "chart/Chart.yaml",
         {
           "type": "yaml",
-          "path": "chart/values.yaml",
+          "path": "chart/Chart.yaml",
           "jsonpath": "$.appVersion"
         }
       ]
