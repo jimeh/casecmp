@@ -9,7 +9,12 @@
       "always-update": true,
       "prerelease": false,
       "extra-files": [
-        "chart/Chart.yaml"
+        "chart/Chart.yaml",
+        {
+          "type": "yaml",
+          "path": "chart/values.yaml",
+          "jsonpath": "$.appVersion"
+        }
       ]
     }
   },
