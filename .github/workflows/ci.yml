@@ -7,10 +7,10 @@ jobs:
     name: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-go@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
         with:
-          go-version: "1.20"
+          go-version-file: "go.mod"
       - name: Install dependencies
         run: go mod download
       - name: Build binary
@@ -24,10 +24,8 @@ jobs:
   helm-lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: azure/setup-helm@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v4
+      - uses: azure/setup-helm@v4
       - name: Lint chart
         run: helm lint chart
       - name: Template chart
@@ -36,24 +34,30 @@ jobs:
   release-please:
     name: Release Please
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: startsWith(github.ref, 'refs/heads/')
+    permissions:
+      contents: write
+      pull-requests: write
     outputs:
-      release_created: ${{ steps.release-please.outputs.release_created }}
-      tag_name: ${{ steps.release-please.outputs.tag_name }} # e.g. v1.0.0
-      version: ${{ steps.release-please.outputs.version }} # e.g. 1.0.0
-      all: ${{ toJSON(steps.release-please.outputs) }}
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }} # e.g. v1.0.0
+      version: ${{ steps.release.outputs.version }} # e.g. 1.0.0
     steps:
-      - uses: google-github-actions/release-please-action@v3
-        id: release-please
+      - uses: jimeh/release-please-manifest-action@v2
+        id: release
         with:
-          command: manifest
+          target-branch-pattern: '^(main|master|release-[0-9]+(\.[0-9]+)?\.x)$'
+          app-id: ${{ secrets.RELEASE_BOT_APP_ID }}
+          private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
 
   release:
     runs-on: ubuntu-latest
     needs: [build, helm-lint, release-please]
     if: needs.release-please.outputs.release_created
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - run: git fetch --force --tags
@@ -66,14 +70,14 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: actions/setup-go@v4
+      - uses: actions/setup-go@v5
         with:
-          go-version: "1.20"
+          go-version-file: "go.mod"
       - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v2
+        uses: goreleaser/goreleaser-action@v6
         with:
-          version: latest
-          args: release --rm-dist
+          version: '~> v2'
+          args: release --clean
         env:
           REGISTRY: ghcr.io
           IMAGE_NAME: ${{ github.repository }}
@@ -83,8 +87,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: [release, release-please]
     if: needs.release-please.outputs.release_created
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - run: git fetch --force --tags
@@ -93,13 +99,11 @@ jobs:
           git config user.name "${{ github.actor }}"
           git config user.email "${{ github.actor }}@users.noreply.github.com"
       - name: Install Helm
-        uses: azure/setup-helm@v3
-      - name: Package chart
-        run: helm package ./chart -d .cr-release-packages
+        uses: azure/setup-helm@v4
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1
         with:
+          charts_dir: chart
           config: .cr.yaml
-          skip_packaging: true
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"

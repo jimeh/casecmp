@@ -6,6 +6,7 @@
       "bump-minor-pre-major": true,
       "bump-patch-for-minor-pre-major": true,
       "draft": false,
+      "always-update": true,
       "prerelease": false,
       "extra-files": [
         "chart/Chart.yaml"
