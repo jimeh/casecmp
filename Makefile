@@ -1,6 +1,6 @@
 NAME = casecmp
 BINARY = bin/${NAME}
-VERSION ?= $(shell cat VERSION)
+VERSION ?= $(shell git describe --tags)
 SOURCES = $(shell find . -name '*.go' -o -name 'Makefile')
 
 $(BINARY): $(SOURCES)

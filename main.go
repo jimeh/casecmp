@@ -56,6 +56,11 @@ curl -X POST -H "Content-Type: application/json" -d '{"a":"Foo Bar","b":"FOO BAR
 `))
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" || r.URL.RawQuery != "" {
+		casecmpHandler(w, r)
+		return
+	}
+
 	scheme := "http"
 	if r.TLS != nil || *forceHTTPSFlag {
 		scheme = "https"
@@ -89,20 +94,44 @@ type JSONData struct {
 	B string `json:"b"`
 }
 
-func casecmpHandler(w http.ResponseWriter, r *http.Request) error {
+func casecmpHandler(w http.ResponseWriter, r *http.Request) {
+	equal, err := casecmp(r)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = fmt.Fprint(w, err.Error())
+		return
+	}
+
+	resp := "0"
+	if equal {
+		resp = "1"
+	}
+
+	accept := r.Header.Get("Accept")
+	if strings.Contains(accept, "application/json") {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		_, _ = fmt.Fprintf(w, `{"result":%s}`, resp)
+
+		return
+	}
+
+	_, _ = fmt.Fprint(w, resp)
+}
+
+func casecmp(r *http.Request) (bool, error) {
 	var a, b string
 
 	contentType := r.Header.Get("Content-Type")
 	if strings.Contains(contentType, "application/json") {
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
-			return err
+			return false, err
 		}
 
 		d := JSONData{}
 		err = json.Unmarshal(body, &d)
 		if err != nil {
-			return err
+			return false, fmt.Errorf("invalid JSON request: %w", err)
 		}
 
 		a = d.A
@@ -112,39 +141,7 @@ func casecmpHandler(w http.ResponseWriter, r *http.Request) error {
 		b = r.FormValue("b")
 	}
 
-	resp := "0"
-	if strings.EqualFold(string(a), string(b)) {
-		resp = "1"
-	}
-
-	accept := r.Header.Get("Accept")
-	if strings.Contains(accept, "application/json") {
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		_, err := fmt.Fprintf(w, `{"result":%s}`, resp)
-		return err
-	}
-
-	_, err := fmt.Fprint(w, resp)
-	return err
-}
-
-func handler(w http.ResponseWriter, r *http.Request) {
-	switch r.URL.Path {
-	case "/":
-		if r.Method != "GET" || r.URL.RawQuery != "" {
-			err := casecmpHandler(w, r)
-			if err != nil {
-				w.WriteHeader(http.StatusInternalServerError)
-				_, _ = fmt.Fprint(w, err.Error())
-			}
-			return
-		}
-		indexHandler(w, r)
-	case "/about":
-		aboutHandler(w, r)
-	default:
-		http.NotFound(w, r)
-	}
+	return strings.EqualFold(string(a), string(b)), nil
 }
 
 func printVersion() {
@@ -184,6 +181,11 @@ func startServer() error {
 		*forceHTTPSFlag = true
 	}
 
+	mux := http.NewServeMux()
+	mux.HandleFunc("/{$}", indexHandler)
+	mux.HandleFunc("/about", aboutHandler)
+	mux.HandleFunc("/about/{$}", aboutHandler)
+
 	address := fmt.Sprintf("%s:%d", *bindFlag, *portFlag)
 	fmt.Printf("Listening on %s\n", address)
 
@@ -191,7 +193,7 @@ func startServer() error {
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 5 * time.Second,
 		IdleTimeout:  30 * time.Second,
-		Handler:      http.HandlerFunc(handler),
+		Handler:      mux,
 		Addr:         address,
 	}
 
