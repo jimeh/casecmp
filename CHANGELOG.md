@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.4.1](https://github.com/jimeh/casecmp/compare/v2.4.0...v2.4.1) (2025-03-16)
+
+
+### Bug Fixes
+
+* **ci/build:** add missing permission to release job ([cc42b4f](https://github.com/jimeh/casecmp/commit/cc42b4f2bc8112b249bcf1a596989618ee80ca0d))
+
 ## [2.4.0](https://github.com/jimeh/casecmp/compare/v2.3.0...v2.4.0) (2025-03-16)
 
 
