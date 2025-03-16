@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.4.0](https://github.com/jimeh/casecmp/compare/v2.3.0...v2.4.0) (2025-03-16)
+
+
+### Features
+
+* use Go 1.24 and a net/http ServeMux for routing ([#19](https://github.com/jimeh/casecmp/issues/19)) ([50c538e](https://github.com/jimeh/casecmp/commit/50c538e3b78d841bf09653a1571a8019a2126be0))
+
 ## [2.3.0](https://github.com/jimeh/casecmp/compare/v2.2.0...v2.3.0) (2023-04-26)
 
 
