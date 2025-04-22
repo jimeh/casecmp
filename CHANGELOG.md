@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.5.0](https://github.com/jimeh/casecmp/compare/v2.4.1...v2.5.0) (2025-04-22)
+
+
+### Features
+
+* **chart:** add revisionHistoryLimit configuration ([#24](https://github.com/jimeh/casecmp/issues/24)) ([37968b6](https://github.com/jimeh/casecmp/commit/37968b6d7179e6c48cdfb266a74d92af88c5fb0a))
+
 ## [2.4.1](https://github.com/jimeh/casecmp/compare/v2.4.0...v2.4.1) (2025-03-16)
 
 
